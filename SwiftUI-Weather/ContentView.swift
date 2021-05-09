@@ -8,30 +8,17 @@
 import SwiftUI
 
 struct ContentView: View {
+    
+    @State private var isNight = false
+    
+    
     var body: some View {
         ZStack { // Stacks items in Z axis (back to front)
-            // Can only have 10 view at a time (not counting nested)
-            LinearGradient(gradient: Gradient(colors: [.blue, Color("lightBlue")]),
-                           startPoint: .topLeading,
-                           endPoint: .bottomTrailing)
-                .edgesIgnoringSafeArea(.all)
-            VStack { // Stacks items in V axis (top to bottom)
-                Text("Singapore, SG")
-                    .font(.system(size: 32, weight: .medium))
-                    .foregroundColor(.white)
-                    .padding()
-                VStack (spacing: 8) {
-                    Image(systemName: "cloud.sun.fill")
-                        .renderingMode(.original)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 180, height: 180)
-                    Text("32°")
-                        .font(.system(size: 70, weight: .medium))
-                        .foregroundColor(.white)
-                }
-                .padding(.bottom, 40)
-                
+            // Can only have 10 VIEW at a time (not counting nested)
+            BackGroundView(isNight: $isNight)
+            VStack {
+                CityTextView(cityName: "Singapore, SG")
+                MainWeatherView(imageName: isNight ? "moon.stars.fill" : "cloud.sun.fill", temperature: 30)
                 HStack (spacing: 20){
                     WeatherDayView(dayOfWeek: "TUES",
                                    imageName: "cloud.sun.fill",
@@ -52,14 +39,9 @@ struct ContentView: View {
                 Spacer() // Puts empty space to fill the entire space
                 // Spacer is consider a VIEW
                 Button {
-                    print("tapped")
+                    isNight.toggle()
                 } label: {
-                    Text("Change Day Time")
-                        .frame(width: 280, height: 50)
-                        .background(Color.white)
-                        .font(.system(size: 20, weight: .bold,
-                                      design: .default))
-                        .cornerRadius(10)
+                    WeatherButton(title: "Change Day Time", textColor: .blue, backgroundColor: .white)
                 }
                 Spacer()
             }
@@ -77,8 +59,6 @@ struct WeatherDayView: View {
     var dayOfWeek: String
     var imageName: String
     var temperature: Int
-    
-    
     var body: some View {
         VStack {
             Text(dayOfWeek)
@@ -94,5 +74,45 @@ struct WeatherDayView: View {
                 .foregroundColor(.white)
         }
         .frame(width: 60, height: 150)
+    }
+}
+
+struct BackGroundView: View {
+    
+    @Binding var isNight: Bool
+    
+    var body: some View {
+        LinearGradient(gradient: Gradient(colors: [isNight ? .black : .blue, isNight ? .gray : Color("lightBlue")]),
+                       startPoint: .topLeading,
+                       endPoint: .bottomTrailing)
+            .edgesIgnoringSafeArea(.all)
+    }
+}
+
+struct CityTextView: View {
+    var cityName: String
+    var body : some View {
+            Text(cityName)
+                .font(.system(size: 32, weight: .medium))
+                .foregroundColor(.white)
+                .padding()
+    }
+}
+
+struct MainWeatherView: View {
+    var imageName: String
+    var temperature: Int
+    var body: some View {
+        VStack (spacing: 8) {
+            Image(systemName: imageName)
+                .renderingMode(.original)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 180, height: 180)
+            Text("\(temperature)°")
+                .font(.system(size: 70, weight: .medium))
+            .foregroundColor(.white)
+        }
+        .padding(.bottom, 40)
     }
 }
